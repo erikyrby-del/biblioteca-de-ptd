@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Biblioteca de P.T.D - Sistema de Memoria Indexada para explorar el rico mundo de la literatura portuguesa con una selección cuidadosamente curada de textos.">
+    <meta name="theme-color" content="#00ff41">
+    <title>Biblioteca de P.T.D | Memoria Indexada</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --accent: #00ff41;
+            --text: #e0e0e0;
+            --surface: #111;
+            --border: #222;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        #app { 
+            width: 100%; 
+            max-width: 1200px; 
+        }
+
+        header {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        h1 { 
+            margin: 0; 
+            font-size: 2rem; 
+            letter-spacing: 2px; 
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        .search-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 12px 15px;
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .search-bar:focus { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        }
+
+        .search-bar::placeholder {
+            color: #555;
+        }
+
+        .breadcrumbs { 
+            font-size: 0.75rem; 
+            color: #666; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        .breadcrumbs span { 
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .breadcrumbs span:hover { 
+            color: var(--accent);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            background: #151515;
+            box-shadow: 0 10px 30px rgba(0, 255, 65, 0.1);
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card.folder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        .card.folder strong {
+            color: var(--accent);
+            font-size: 1.1rem;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .card.folder::before {
+            content: "> [ ";
+            color: var(--accent);
+            margin-right: 10px;
+        }
+
+        .card.folder::after {
+            content: " ]";
+            color: var(--accent);
+            margin-left: 10px;
+        }
+
+        .card.note { 
+            cursor: default; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .note-img { 
+            width: 100%; 
+            height: 150px; 
+            background: #222; 
+            object-fit: cover; 
+            margin-bottom: 15px; 
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .card.note:hover .note-img {
+            transform: scale(1.05);
+        }
+
+        .note-title { 
+            color: var(--accent); 
+            margin: 0 0 10px 0; 
+            font-size: 1.15rem;
+            font-weight: bold;
+        }
+
+        .note-desc { 
+            font-size: 0.9rem; 
+            color: #aaa; 
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        @keyframes slideDown {
+            from { 
+                opacity: 0; 
+                transform: translateY(-20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .empty { 
+            opacity: 0.4; 
+            text-align: center; 
+            grid-column: 1/-1; 
+            padding: 60px 20px;
+            font-style: italic;
+        }
+
+        .results-header {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .card.folder {
+                min-height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <header>
+        <div>
+            <h1>BIBLIOTECA DE P.T.D</h1>
+            <p class="subtitle">SISTEMA DE MEMORIA INDEXADA</p>
+        </div>
+        <input type="text" id="searchInput" class="search-bar" placeholder="BUSCAR_POR_PALABRA_CLAVE..." oninput="search()">
+        <div class="breadcrumbs" id="breadcrumbs"></div>
+    </header>
+
+    <div id="content-area"></div>
+</div>
+
+<script>
+    // Estructura semilla (Si no hay nada guardado, carga esto)
+    const initialData = {
+        name: "ROOT",
+        type: "folder",
+        children: [
+            {
+                name: "Primer Trimestre",
+                type: "folder",
+                children: [
+                    {
+                        name: "Programación",
+                        type: "folder",
+                        children: [
+                            {
+                                name: "Lógica de Bucles",
+                                type: "note",
+                                img: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=400",
+                                desc: "Iteración recursiva sobre conjuntos de datos estructurados. Aprende cómo funcionan los bucles y optimiza tu código."
+                            },
+                            {
+                                name: "Variables y Tipos",
+                                type: "note",
+                                img: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400",
+                                desc: "Comprende los fundamentos de las variables y los tipos de datos en programación."
+                            }
+                        ]
+                    },
+                    {
+                        name: "Literatura Portuguesa",
+                        type: "folder",
+                        children: [
+                            {
+                                name: "Fernando Pessoa",
+                                type: "note",
+                                img: "https://images.unsplash.com/photo-1507842217343-583f20270319?w=400",
+                                desc: "Explora la obra del poeta más importante de la literatura portuguesa del siglo XX."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    };
+
+    // Cargar de LocalStorage o usar initialData
+    let database = JSON.parse(localStorage.getItem('mySystemData')) || initialData;
+    let currentPath = [database];
+
+    function render() {
+        const container = document.getElementById('content-area');
+        const breadcrumbs = document.getElementById('breadcrumbs');
+        const currentFolder = currentPath[currentPath.length - 1];
+        
+        breadcrumbs.innerHTML = currentPath.map((f, i) => `<span onclick="navigateTo(${i})">${f.name}</span>`).join(' / ');
+
+        let html = currentPath.length > 1 ? `<button class="back-btn" onclick="goBack()"><< VOLVER</button>` : '';
+        html += `<div class="grid">`;
+        
+        if (currentFolder.children.length === 0) {
+            html += `<div class="empty">// NO_SE_ENCONTRARON_DATOS_EN_ESTE_SECTOR</div>`;
+        }
+
+        currentFolder.children.forEach((item, index) => {
+            if (item.type === 'folder') {
+                html += `<div class="card folder" onclick="enterFolder(${index})"><strong>${item.name}</strong></div>`;
+            } else {
+                html += `
+                    <div class="card note">
+                        ${item.img ? `<img src="${item.img}" class="note-img" alt="${item.name}">` : ''}
+                        <h3 class="note-title">${item.name}</h3>
+                        <p class="note-desc">${item.desc}</p>
+                    </div>`;
+            }
+        });
+
+        html += `</div>`;
+        container.innerHTML = html;
+        // Guardar estado actual
+        localStorage.setItem('mySystemData', JSON.stringify(database));
+    }
+
+    function enterFolder(idx) { currentPath.push(currentPath[currentPath.length - 1].children[idx]); render(); }
+    function goBack() { currentPath.pop(); render(); }
+    function navigateTo(idx) { currentPath = currentPath.slice(0, idx + 1); render(); }
+
+    function search() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        if (!term) { render(); return; }
+        const results = [];
+        function find(f) {
+            f.children?.forEach(i => {
+                if (i.name.toLowerCase().includes(term)) results.push(i);
+                if (i.children) find(i);
+            });
+        }
+        find(database);
+        
+        let html = `<h2 class="results-header">RESULTADOS_DE_BÚSQUEDA: ${results.length}</h2><div class="grid">`;
+        if (results.length === 0) {
+            html += `<div class="empty">// NO_SE_ENCONTRARON_RESULTADOS</div>`;
+        } else {
+            results.forEach(item => {
+                html += `<div class="card ${item.type}">
+                    ${item.type === 'note' && item.img ? `<img src="${item.img}" class="note-img" alt="${item.name}">` : ''}
+                    <strong>${item.name}</strong>
+                    ${item.type === 'note' ? `<p class="note-desc">${item.desc}</p>` : ''}
+                </div>`;
+            });
+        }
+        document.getElementById('content-area').innerHTML = html + `</div>`;
+    }
+
+    render();
+</script>
+
+</body>
+</html>
