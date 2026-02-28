@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Biblioteca de P.T.D - Sistema de Gestión de Contenido Minimalista">
+    <title>Biblioteca de P.T.D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #2d2d2d;
+            --accent: #4a90e2;
+            --text: #e0e0e0;
+            --border: #404040;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #0f0f0f;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        h1:hover {
+            color: var(--accent);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            animation: fadeIn 0.5s ease-out 0.2s both;
+        }
+
+        .search-bar {
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 15px;
+            border-radius: 6px;
+            width: 250px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(74, 144, 226, 0.2);
+            transform: scale(1.02);
+        }
+
+        .mode-indicator {
+            padding: 6px 12px;
+            background-color: var(--secondary);
+            border-radius: 6px;
+            font-size: 12px;
+            color: #999;
+            border: 1px solid var(--border);
+        }
+
+        .mode-indicator.edit {
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .mode-indicator.view {
+            color: #666;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3a7bc8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background-color: var(--secondary);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        button.secondary:hover {
+            background-color: #383838;
+            border-color: var(--accent);
+        }
+
+        button.danger {
+            background-color: var(--danger);
+        }
+
+        button.danger:hover {
+            background-color: #dc2626;
+        }
+
+        button.success {
+            background-color: var(--success);
+        }
+
+        button.success:hover {
+            background-color: #059669;
+        }
+
+        /* ANIMATIONS FOR CONTENT */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .grid-item {
+            animation: slideUp 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .grid-item:nth-child(1) { animation-delay: 0.05s; }
+        .grid-item:nth-child(2) { animation-delay: 0.1s; }
+        .grid-item:nth-child(3) { animation-delay: 0.15s; }
+        .grid-item:nth-child(4) { animation-delay: 0.2s; }
+        .grid-item:nth-child(5) { animation-delay: 0.25s; }
+        .grid-item:nth-child(6) { animation-delay: 0.3s; }
+        .grid-item:nth-child(n+7) { animation-delay: 0.35s; }
+
+        /* HOME PAGE */
+        .home-page {
+            display: none;
+        }
+
+        .home-page.active {
+            display: block;
+        }
+
+        .home-header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .home-header h2 {
+            font-size: 42px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .home-description {
+            font-size: 16px;
+            color: #999;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+            transition: all 0.3s ease;
+        }
+
+        .description-editor {
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .description-editor textarea {
+            width: 100%;
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 15px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .description-editor textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(74, 144, 226, 0.2);
+        }
+
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .folder-card {
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .folder-card:hover::before {
+            left: 100%;
+        }
+
+        .folder-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(74, 144, 226, 0.15);
+        }
+
+        .folder-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .folder-card:hover .folder-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .folder-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            word-break: break-word;
+            transition: color 0.3s ease;
+        }
+
+        .folder-card:hover .folder-name {
+            color: var(--accent);
+        }
+
+        .folder-info {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .folder-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            justify-content: flex-end;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: all 0.3s ease;
+        }
+
+        .folder-card:hover .folder-actions {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .folder-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .add-folder-btn {
+            width: 100%;
+            margin-bottom: 20px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        /* FOLDER/SUBFOLDER PAGE */
+        .folder-page {
+            display: none;
+        }
+
+        .folder-page.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #777;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .breadcrumb span {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .breadcrumb span:hover {
+            background-color: var(--secondary);
+            color: var(--accent);
+            transform: translateX(2px);
+        }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .folder-title-edit {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .folder-title-edit input {
+            flex: 1;
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 15px;
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .folder-title-edit input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(74, 144, 226, 0.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            animation: slideUp 0.4s ease-out 0.1s both;
+        }
+
+        /* NOTE EDITOR */
+        .note-editor {
+            display: none;
+        }
+
+        .note-editor.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .note-editor-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .note-title-input {
+            width: 100%;
+            font-size: 32px;
+            font-weight: 300;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text);
+            padding: 10px 0;
+            margin-bottom: 20px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .note-title-input:focus {
+            border-bottom-color: var(--accent);
+        }
+
+        .note-image-section {
+            margin-bottom: 30px;
+            animation: slideUp 0.4s ease-out 0.1s both;
+        }
+
+        .note-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .note-image:hover {
+            transform: scale(1.02);
+        }
+
+        .image-upload {
+            display: flex;
+            gap: 10px;
+            animation: slideUp 0.4s ease-out 0.2s both;
+        }
+
+        .image-input {
+            display: none;
+        }
+
+        .note-description {
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 300px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            resize: vertical;
+            line-height: 1.8;
+            transition: all 0.3s ease;
+            animation: slideUp 0.4s ease-out 0.2s both;
+        }
+
+        .note-description:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(74, 144, 226, 0.2);
+        }
+
+        .note-editor-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+            animation: slideUp 0.4s ease-out 0.3s both;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .modal-input {
+            width: 100%;
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(74, 144, 226, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .home-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .search-bar {
+                width: 100%;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .note-title-input {
+                font-size: 24px;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .readonly-notice {
+            background-color: var(--secondary);
+            border-left: 4px solid #f59e0b;
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #f59e0b;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .loading {
+            background: linear-gradient(90deg, var(--secondary) 25%, var(--border) 50%, var(--secondary) 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- HEADER -->
+    <header>
+        <h1 onclick="goHome()">📚 Biblioteca de P.T.D</h1>
+        <div class="header-actions">
+            <input type="text" id="searchInput" class="search-bar" placeholder="Buscar carpetas, subcarpetas, notas...">
+            <div class="mode-indicator" id="modeIndicator"></div>
+            <button id="createFolderHeaderBtn" onclick="openCreateFolderModal()">+ Nueva Carpeta</button>
+        </div>
+    </header>
+
+    <!-- HOME PAGE -->
+    <div class="home-page active" id="homePage">
+        <div class="home-header">
+            <h2>Bienvenido a tu Biblioteca</h2>
+            <div id="descriptionDisplay" class="home-description">Organiza tu contenido de forma clara y eficiente. Crea carpetas, subcarpetas y notas con imágenes.</div>
+            <div class="description-editor" id="descriptionEditor" style="display: none;">
+                <textarea id="descriptionInput" placeholder="Escribe una descripción sobre tu biblioteca..."></textarea>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <button onclick="saveDescription()" class="success">Guardar</button>
+                    <button onclick="editDescription()" class="secondary">Cancelar</button>
+                </div>
+            </div>
+            <button onclick="editDescription()" id="editDescBtn" class="secondary" style="margin-top: 15px; display: none;">Editar Descripción</button>
+        </div>
+
+        <button id="mainCreateFolderBtn" class="add-folder-btn" onclick="openCreateFolderModal()">+ Crear Nueva Carpeta</button>
+
+        <div class="home-grid" id="homeGrid">
+            <!-- Folders will be inserted here -->
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📁</div>
+            <p>No hay carpetas aún. Crea una para empezar.</p>
+        </div>
+    </div>
+
+    <!-- FOLDER PAGE -->
+    <div class="folder-page" id="folderPage">
+        <div id="readonlyNotice" class="readonly-notice" style="display: none;">
+            📖 Estás en modo visualización. Solo el propietario puede editar.
+        </div>
+        <div class="breadcrumb" id="breadcrumb"></div>
+        
+        <div class="folder-header">
+            <div>
+                <h2 id="folderTitle"></h2>
+                <div class="folder-title-edit" id="titleEditSection" style="display: none;">
+                    <input type="text" id="folderTitleInput" placeholder="Nombre de la carpeta">
+                    <button onclick="saveFolderTitle()" class="success">Guardar</button>
+                    <button onclick="cancelTitleEdit()" class="secondary">Cancelar</button>
+                </div>
+            </div>
+            <button onclick="editFolderTitle()" id="editTitleBtn" class="secondary" style="display: none;">Editar</button>
+        </div>
+
+        <div class="action-buttons" id="actionButtons" style="display: none;">
+            <button onclick="openCreateSubfolderModal()">+ Subcarpeta</button>
+            <button onclick="openCreateNoteModal()">+ Nota</button>
+        </div>
+
+        <div class="home-grid" id="folderGrid" style="margin-top: 30px;">
+            <!-- Subfolders and notes will be inserted here -->
+        </div>
+
+        <div id="emptyFolderState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📂</div>
+            <p>Esta carpeta está vacía.</p>
+        </div>
+    </div>
+
+    <!-- NOTE EDITOR -->
+    <div class="note-editor" id="noteEditor">
+        <div id="readonlyNoteNotice" class="readonly-notice" style="display: none;">
+            📖 Estás en modo visualización. Solo el propietario puede editar.
+        </div>
+        <div class="breadcrumb" id="noteBreadcrumb"></div>
+        
+        <input type="text" class="note-title-input" id="noteTitle" placeholder="Título de la nota" style="cursor: pointer;">
+
+        <div class="note-image-section">
+            <img id="noteImage" class="note-image" onclick="handleImageClick()" style="display: none;">
+            <input type="file" id="imageInput" class="image-input" accept="image/*">
+            <div class="image-upload" id="imageUploadButtons">
+                <button onclick="document.getElementById('imageInput').click()">📷 Subir Imagen</button>
+                <button id="removeImageBtn" class="danger" style="display: none;" onclick="removeImage()">Eliminar Imagen</button>
+            </div>
+        </div>
+
+        <textarea class="note-description" id="noteDescription" placeholder="Escribe tu contenido aquí..."></textarea>
+
+        <div class="note-editor-footer" id="noteEditorFooter">
+            <button onclick="goBackFromNote()" class="secondary">Volver</button>
+            <button onclick="deleteNote()" class="danger" id="deleteNoteBtn">Eliminar</button>
+            <button onclick="saveNote()" class="success" id="saveNoteBtn">Guardar Nota</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal" id="createFolderModal">
+    <div class="modal-content">
+        <div class="modal-header">Crear Nueva Carpeta</div>
+        <input type="text" class="modal-input" id="folderNameInput" placeholder="Nombre de la carpeta" autofocus>
+        <div class="modal-buttons">
+            <button onclick="closeModal('createFolderModal')" class="secondary">Cancelar</button>
+            <button onclick="createFolder()" class="success">Crear</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="createSubfolderModal">
+    <div class="modal-content">
+        <div class="modal-header">Crear Subcarpeta</div>
+        <input type="text" class="modal-input" id="subfolderNameInput" placeholder="Nombre de la subcarpeta" autofocus>
+        <div class="modal-buttons">
+            <button onclick="closeModal('createSubfolderModal')" class="secondary">Cancelar</button>
+            <button onclick="createSubfolder()" class="success">Crear</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="createNoteModal">
+    <div class="modal-content">
+        <div class="modal-header">Crear Nota</div>
+        <input type="text" class="modal-input" id="noteNameInput" placeholder="Nombre de la nota" autofocus>
+        <div class="modal-buttons">
+            <button onclick="closeModal('createNoteModal')" class="secondary">Cancelar</button>
+            <button onclick="createNote()" class="success">Crear</button>
+        </div>
+    </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal" id="shareModal">
+    <div class="modal-content">
+        <div class="modal-header">Compartir Biblioteca</div>
+        <p style="margin-bottom: 15px; color: #999; font-size: 14px;">Comparte este enlace para que otros vean tu biblioteca (solo lectura):</p>
+        <input type="text" id="shareLink" class="modal-input" readonly>
+        <div class="modal-buttons">
+            <button onclick="copyShareLink()" class="success">Copiar Enlace</button>
+            <button onclick="closeModal('shareModal')" class="secondary">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // AUTHENTICATION
+    const OWNER_PASSWORD = 'erikyrby2025'; // Cambiar por contraseña real
+    let isOwner = false;
+    let isReadOnly = false;
+
+    // DATA STRUCTURE
+    let appData = {
+        description: 'Organiza tu contenido de forma clara y eficiente. Crea carpetas, subcarpetas y notas con imágenes.',
+        folders: []
+    };
+
+    let currentPath = [];
+    let currentNote = null;
+    let searchResults = [];
+    let isSearching = false;
+
+    // INITIALIZE
+    function init() {
+        checkAuthMode();
+        loadData();
+        renderHome();
+        setupEventListeners();
+        updateModeIndicator();
+    }
+
+    function checkAuthMode() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewKey = urlParams.get('view');
+        
+        if (viewKey === 'public') {
+            isReadOnly = true;
+            isOwner = false;
+        } else {
+            // Pedir contraseña al propietario
+            const password = localStorage.getItem('bibliotecaPTDOwnerAuth');
+            if (password === OWNER_PASSWORD) {
+                isOwner = true;
+                isReadOnly = false;
+            } else {
+                // Si no está autenticado, pregunta
+                const entered = prompt('Ingresa la contraseña para editar:');
+                if (entered === OWNER_PASSWORD) {
+                    localStorage.setItem('bibliotecaPTDOwnerAuth', entered);
+                    isOwner = true;
+                    isReadOnly = false;
+                } else {
+                    isReadOnly = true;
+                    isOwner = false;
+                }
+            }
+        }
+    }
+
+    function updateModeIndicator() {
+        const indicator = document.getElementById('modeIndicator');
+        if (isOwner) {
+            indicator.classList.add('edit');
+            indicator.textContent = '✏️ Modo Edición';
+        } else {
+            indicator.classList.add('view');
+            indicator.textContent = '👁️ Modo Lectura';
+        }
+    }
+
+    function setupEventListeners() {
+        document.getElementById('imageInput').addEventListener('change', handleImageUpload);
+        document.getElementById('searchInput').addEventListener('input', handleSearch);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeAllModals();
+            if (e.key === 'Enter' && document.getElementById('createFolderModal').classList.contains('active')) {
+                createFolder();
+            }
+        });
+    }
+
+    // DATA MANAGEMENT
+    function loadData() {
+        const saved = localStorage.getItem('bibliotecaPTD');
+        if (saved) appData = JSON.parse(saved);
+    }
+
+    function saveData() {
+        localStorage.setItem('bibliotecaPTD', JSON.stringify(appData));
+    }
+
+    // HOME PAGE
+    function renderHome() {
+        document.getElementById('homePage').classList.add('active');
+        document.getElementById('folderPage').classList.remove('active');
+        document.getElementById('noteEditor').classList.remove('active');
+        currentPath = [];
+        renderFolders();
+        document.getElementById('descriptionDisplay').textContent = appData.description;
+        updateEditability();
+    }
+
+    function goHome() {
+        if (currentPath.length > 0 || currentNote) {
+            renderHome();
+        }
+    }
+
+    function updateEditability() {
+        const editDescBtn = document.getElementById('editDescBtn');
+        const createFolderHeaderBtn = document.getElementById('createFolderHeaderBtn');
+        const mainCreateFolderBtn = document.getElementById('mainCreateFolderBtn');
+        const readonlyNotice = document.getElementById('readonlyNotice');
+
+        if (isReadOnly) {
+            if (editDescBtn) editDescBtn.style.display = 'none';
+            if (createFolderHeaderBtn) createFolderHeaderBtn.style.display = 'none';
+            if (mainCreateFolderBtn) mainCreateFolderBtn.style.display = 'none';
+        } else {
+            if (editDescBtn) editDescBtn.style.display = 'block';
+            if (createFolderHeaderBtn) createFolderHeaderBtn.style.display = 'block';
+            if (mainCreateFolderBtn) mainCreateFolderBtn.style.display = 'block';
+        }
+    }
+
+    function editDescription() {
+        if (isReadOnly) return;
+        document.getElementById('descriptionDisplay').style.display = 'none';
+        document.getElementById('descriptionEditor').style.display = 'block';
+        document.getElementById('editDescBtn').style.display = 'none';
+        document.getElementById('descriptionInput').value = appData.description;
+    }
+
+    function saveDescription() {
+        appData.description = document.getElementById('descriptionInput').value;
+        saveData();
+        document.getElementById('descriptionDisplay').textContent = appData.description;
+        document.getElementById('descriptionDisplay').style.display = 'block';
+        document.getElementById('descriptionEditor').style.display = 'none';
+        document.getElementById('editDescBtn').style.display = 'block';
+    }
+
+    function renderFolders() {
+        const grid = document.getElementById('homeGrid');
+        const empty = document.getElementById('emptyState');
+        grid.innerHTML = '';
+
+        if (appData.folders.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+
+        empty.style.display = 'none';
+        appData.folders.forEach((folder, index) => {
+            const noteCount = countNotes(folder);
+            const html = `
+                <div class="folder-card grid-item" onclick="openFolder(${index})">
+                    <div class="folder-icon">📁</div>
+                    <div class="folder-name">${folder.name}</div>
+                    <div class="folder-info">${noteCount} nota${noteCount !== 1 ? 's' : ''}</div>
+                    ${!isReadOnly ? `<div class="folder-actions">
+                        <button onclick="event.stopPropagation(); deleteFolder(${index})" class="danger">Eliminar</button>
+                    </div>` : ''}
+                </div>
+            `;
+            grid.innerHTML += html;
+        });
+    }
+
+    function countNotes(folder) {
+        let count = 0;
+        function traverse(f) {
+            count += f.notes ? f.notes.length : 0;
+            if (f.subfolders) f.subfolders.forEach(traverse);
+        }
+        traverse(folder);
+        return count;
+    }
+
+    // FOLDER OPERATIONS
+    function openFolder(index) {
+        currentPath = [{ name: 'Home', index: null }];
+        let folder = appData.folders[index];
+        currentPath.push({ name: folder.name, index: index, data: folder });
+        renderFolderPage(folder);
+    }
+
+    function openSubfolder(index) {
+        let currentFolder = getCurrentFolder();
+        let subfolder = currentFolder.subfolders[index];
+        currentPath.push({ name: subfolder.name, index: index, data: subfolder });
+        renderFolderPage(subfolder);
+    }
+
+    function renderFolderPage(folder) {
+        document.getElementById('homePage').classList.remove('active');
+        document.getElementById('folderPage').classList.add('active');
+        document.getElementById('noteEditor').classList.remove('active');
+
+        renderBreadcrumb();
+        document.getElementById('folderTitle').textContent = folder.name;
+        document.getElementById('folderTitleInput').value = folder.name;
+
+        // Show/hide edit buttons based on mode
+        document.getElementById('editTitleBtn').style.display = isReadOnly ? 'none' : 'block';
+        document.getElementById('actionButtons').style.display = isReadOnly ? 'none' : 'flex';
+        document.getElementById('readonlyNotice').style.display = isReadOnly ? 'block' : 'none';
+
+        let content = '';
+        const empty = document.getElementById('emptyFolderState');
+
+        // Render subfolders
+        if (folder.subfolders && folder.subfolders.length > 0) {
+            folder.subfolders.forEach((subfolder, index) => {
+                const noteCount = countNotesInFolder(subfolder);
+                content += `
+                    <div class="folder-card grid-item" onclick="openSubfolder(${index})">
+                        <div class="folder-icon">📂</div>
+                        <div class="folder-name">${subfolder.name}</div>
+                        <div class="folder-info">${noteCount} nota${noteCount !== 1 ? 's' : ''}</div>
+                        ${!isReadOnly ? `<div class="folder-actions">
+                            <button onclick="event.stopPropagation(); deleteSubfolder(${index})" class="danger">Eliminar</button>
+                        </div>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        // Render notes
+        if (folder.notes && folder.notes.length > 0) {
+            folder.notes.forEach((note, index) => {
+                content += `
+                    <div class="folder-card grid-item" onclick="openNote(${index})">
+                        <div class="folder-icon">📄</div>
+                        <div class="folder-name">${note.title}</div>
+                        <div class="folder-info">Última edición: ${new Date(note.lastEdited).toLocaleDateString()}</div>
+                        ${!isReadOnly ? `<div class="folder-actions">
+                            <button onclick="event.stopPropagation(); deleteNoteFromFolder(${index})" class="danger">Eliminar</button>
+                        </div>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('folderGrid').innerHTML = content;
+
+        if ((!folder.subfolders || folder.subfolders.length === 0) && (!folder.notes || folder.notes.length === 0)) {
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+        }
+    }
+
+    function countNotesInFolder(folder) {
+        let count = folder.notes ? folder.notes.length : 0;
+        if (folder.subfolders) {
+            folder.subfolders.forEach(sf => {
+                count += countNotesInFolder(sf);
+            });
+        }
+        return count;
+    }
+
+    function renderBreadcrumb() {
+        const breadcrumb = document.getElementById('breadcrumb');
+        let html = '';
+        currentPath.forEach((item, index) => {
+            html += `<span onclick="navigateToBreadcrumb(${index})">${item.name}</span>`;
+            if (index < currentPath.length - 1) html += '<span>/</span>';
+        });
+        breadcrumb.innerHTML = html;
+    }
+
+    function navigateToBreadcrumb(index) {
+        if (index === 0) {
+            goHome();
+        } else {
+            currentPath = currentPath.slice(0, index + 1);
+            renderFolderPage(currentPath[index].data);
+        }
+    }
+
+    function editFolderTitle() {
+        if (isReadOnly) return;
+        document.getElementById('folderTitle').style.display = 'none';
+        document.getElementById('titleEditSection').style.display = 'flex';
+        document.getElementById('editTitleBtn').style.display = 'none';
+    }
+
+    function cancelTitleEdit() {
+        document.getElementById('folderTitle').style.display = 'block';
+        document.getElementById('titleEditSection').style.display = 'none';
+        document.getElementById('editTitleBtn').style.display = 'block';
+    }
+
+    function saveFolderTitle() {
+        const newName = document.getElementById('folderTitleInput').value.trim();
+        if (!newName) return;
+
+        let current = getCurrentFolder();
+        current.name = newName;
+        currentPath[currentPath.length - 1].name = newName;
+        saveData();
+
+        document.getElementById('folderTitle').textContent = newName;
+        cancelTitleEdit();
+        renderBreadcrumb();
+    }
+
+    function getCurrentFolder() {
+        if (currentPath.length === 1) return null;
+        let folder = appData.folders[currentPath[1].index];
+        for (let i = 2; i < currentPath.length; i++) {
+            folder = folder.subfolders[currentPath[i].index];
+        }
+        return folder;
+    }
+
+    // NOTE OPERATIONS
+    function openNote(index) {
+        let folder = getCurrentFolder();
+        currentNote = { folderPath: [...currentPath], noteIndex: index };
+        let note = folder.notes[index];
+
+        document.getElementById('homePage').classList.remove('active');
+        document.getElementById('folderPage').classList.remove('active');
+        document.getElementById('noteEditor').classList.add('active');
+
+        renderNoteBreadcrumb();
+        document.getElementById('noteTitle').value = note.title;
+        document.getElementById('noteDescription').value = note.description || '';
+        document.getElementById('noteTitle').disabled = isReadOnly;
+        document.getElementById('noteDescription').disabled = isReadOnly;
+
+        document.getElementById('imageUploadButtons').style.display = isReadOnly ? 'none' : 'flex';
+        document.getElementById('deleteNoteBtn').style.display = isReadOnly ? 'none' : 'block';
+        document.getElementById('saveNoteBtn').style.display = isReadOnly ? 'none' : 'block';
+        document.getElementById('readonlyNoteNotice').style.display = isReadOnly ? 'block' : 'none';
+
+        if (note.image) {
+            document.getElementById('noteImage').src = note.image;
+            document.getElementById('noteImage').style.display = 'block';
+            document.getElementById('removeImageBtn').style.display = isReadOnly ? 'none' : 'block';
+        } else {
+            document.getElementById('noteImage').style.display = 'none';
+            document.getElementById('removeImageBtn').style.display = 'none';
+        }
+    }
+
+    function handleImageClick() {
+        if (!isReadOnly) {
+            document.getElementById('imageInput').click();
+        }
+    }
+
+    function renderNoteBreadcrumb() {
+        const breadcrumb = document.getElementById('noteBreadcrumb');
+        let html = '<span onclick="goHome()">Home</span>';
+        currentPath.forEach((item, index) => {
+            if (index > 0) {
+                html += `<span>/</span><span onclick="navigateToBreadcrumb(${index})">${item.name}</span>`;
+            }
+        });
+        breadcrumb.innerHTML = html;
+    }
+
+    function saveNote() {
+        if (isReadOnly) return;
+        let folder = getCurrentFolder();
+        let note = folder.notes[currentNote.noteIndex];
+        note.title = document.getElementById('noteTitle').value || 'Sin título';
+        note.description = document.getElementById('noteDescription').value;
+        note.lastEdited = new Date().toISOString();
+        saveData();
+        alert('Nota guardada');
+    }
+
+    function deleteNote() {
+        if (isReadOnly) return;
+        if (confirm('¿Estás seguro de que quieres eliminar esta nota?')) {
+            let folder = getCurrentFolder();
+            folder.notes.splice(currentNote.noteIndex, 1);
+            saveData();
+            goBackFromNote();
+        }
+    }
+
+    function goBackFromNote() {
+        let lastPath = currentNote.folderPath;
+        currentPath = lastPath;
+        currentNote = null;
+        renderFolderPage(getCurrentFolder());
+    }
+
+    function handleImageUpload(e) {
+        if (isReadOnly) return;
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const imageData = event.target.result;
+            let folder = getCurrentFolder();
+            let note = folder.notes[currentNote.noteIndex];
+            note.image = imageData;
+            saveData();
+
+            document.getElementById('noteImage').src = imageData;
+            document.getElementById('noteImage').style.display = 'block';
+            document.getElementById('removeImageBtn').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeImage() {
+        if (isReadOnly) return;
+        if (confirm('¿Eliminar la imagen?')) {
+            let folder = getCurrentFolder();
+            let note = folder.notes[currentNote.noteIndex];
+            note.image = null;
+            saveData();
+
+            document.getElementById('noteImage').style.display = 'none';
+            document.getElementById('removeImageBtn').style.display = 'none';
+        }
+    }
+
+    // MODAL FUNCTIONS
+    function openCreateFolderModal() {
+        if (isReadOnly) return;
+        document.getElementById('createFolderModal').classList.add('active');
+        document.getElementById('folderNameInput').focus();
+    }
+
+    function openCreateSubfolderModal() {
+        if (isReadOnly) return;
+        document.getElementById('createSubfolderModal').classList.add('active');
+        document.getElementById('subfolderNameInput').focus();
+    }
+
+    function openCreateNoteModal() {
+        if (isReadOnly) return;
+        document.getElementById('createNoteModal').classList.add('active');
+        document.getElementById('noteNameInput').focus();
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+
+    function closeAllModals() {
+        document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+    }
+
+    function createFolder() {
+        if (isReadOnly) return;
+        const name = document.getElementById('folderNameInput').value.trim();
+        if (!name) return alert('Ingresa un nombre');
+
+        appData.folders.push({
+            name: name,
+            subfolders: [],
+            notes: []
+        });
+
+        saveData();
+        closeModal('createFolderModal');
+        renderFolders();
+        document.getElementById('folderNameInput').value = '';
+    }
+
+    function createSubfolder() {
+        if (isReadOnly) return;
+        const name = document.getElementById('subfolderNameInput').value.trim();
+        if (!name) return alert('Ingresa un nombre');
+
+        let folder = getCurrentFolder();
+        if (!folder.subfolders) folder.subfolders = [];
+
+        folder.subfolders.push({
+            name: name,
+            subfolders: [],
+            notes: []
+        });
+
+        saveData();
+        closeModal('createSubfolderModal');
+        renderFolderPage(folder);
+        document.getElementById('subfolderNameInput').value = '';
+    }
+
+    function createNote() {
+        if (isReadOnly) return;
+        const name = document.getElementById('noteNameInput').value.trim();
+        if (!name) return alert('Ingresa un nombre');
+
+        let folder = getCurrentFolder();
+        if (!folder.notes) folder.notes = [];
+
+        folder.notes.push({
+            title: name,
+            description: '',
+            image: null,
+            lastEdited: new Date().toISOString()
+        });
+
+        saveData();
+        closeModal('createNoteModal');
+        renderFolderPage(folder);
+        document.getElementById('noteNameInput').value = '';
+    }
+
+    function deleteFolder(index) {
+        if (isReadOnly) return;
+        if (confirm('¿Eliminar esta carpeta y todo su contenido?')) {
+            appData.folders.splice(index, 1);
+            saveData();
+            renderFolders();
+        }
+    }
+
+    function deleteSubfolder(index) {
+        if (isReadOnly) return;
+        if (confirm('¿Eliminar esta subcarpeta y todo su contenido?')) {
+            let folder = getCurrentFolder();
+            folder.subfolders.splice(index, 1);
+            saveData();
+            renderFolderPage(folder);
+        }
+    }
+
+    function deleteNoteFromFolder(index) {
+        if (isReadOnly) return;
+        if (confirm('¿Eliminar esta nota?')) {
+            let folder = getCurrentFolder();
+            folder.notes.splice(index, 1);
+            saveData();
+            renderFolderPage(folder);
+        }
+    }
+
+    // SEARCH FUNCTION
+    function handleSearch(e) {
+        const query = e.target.value.toLowerCase();
+        if (!query) {
+            isSearching = false;
+            renderHome();
+            return;
+        }
+
+        isSearching = true;
+        searchResults = [];
+        searchInFolders(appData.folders, query);
+
+        if (searchResults.length === 0) {
+            document.getElementById('homeGrid').innerHTML = '<div class="empty-state"><p>No se encontraron resultados</p></div>';
+            return;
+        }
+
+        let html = '';
+        searchResults.forEach(result => {
+            if (result.type === 'folder') {
+                html += `
+                    <div class="folder-card grid-item" onclick="navigateToFolder('${result.path}')">
+                        <div class="folder-icon">📁</div>
+                        <div class="folder-name">${result.name}</div>
+                        <div class="folder-info">${result.path}</div>
+                    </div>
+                `;
+            } else if (result.type === 'note') {
+                html += `
+                    <div class="folder-card grid-item" onclick="navigateToNote('${result.folderPath}', ${result.index})">
+                        <div class="folder-icon">📄</div>
+                        <div class="folder-name">${result.name}</div>
+                        <div class="folder-info">${result.folderPath}</div>
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById('homeGrid').innerHTML = html;
+    }
+
+    function searchInFolders(folders, query, path = '') {
+        folders.forEach((folder, index) => {
+            const folderPath = path ? `${path} > ${folder.name}` : folder.name;
+
+            if (folder.name.toLowerCase().includes(query)) {
+                searchResults.push({
+                    type: 'folder',
+                    name: folder.name,
+                    path: folderPath,
+                    index: index
+                });
+            }
+
+            if (folder.notes) {
+                folder.notes.forEach((note, noteIndex) => {
+                    if (note.title.toLowerCase().includes(query)) {
+                        searchResults.push({
+                            type: 'note',
+                            name: note.title,
+                            folderPath: folderPath,
+                            index: noteIndex
+                        });
+                    }
+                });
+            }
+
+            if (folder.subfolders) {
+                searchInFolders(folder.subfolders, query, folderPath);
+            }
+        });
+    }
+
+    function navigateToFolder(path) {
+        alert('Navegando a: ' + path);
+    }
+
+    function navigateToNote(path, index) {
+        alert('Abriendo nota: ' + path);
+    }
+
+    // SHARE FUNCTIONS
+    function generateShareLink() {
+        const baseUrl = window.location.href.split('?')[0];
+        return baseUrl + '?view=public';
+    }
+
+    function copyShareLink() {
+        const link = generateShareLink();
+        document.getElementById('shareLink').value = link;
+        document.getElementById('shareLink').select();
+        document.execCommand('copy');
+        alert('Enlace copiado al portapapeles');
+    }
+
+    // Initialize app
+    init();
+</script>
+
+</body>
+</html>
